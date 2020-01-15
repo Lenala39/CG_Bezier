@@ -91,12 +91,75 @@ void Bezier_patch::position_normal(float _u, float _v, vec3 &_p, vec3 &_n) const
     vec3 dv(0, 0, 0);
     vec3 n(0, 0, 0);
 
+    if(use_de_Casteljau_) {
+        // implement bilinear Casteljau
+        int control_polygon_size = 4;  
+        
+        pmp::vec3 new_control_points_[3][3];
+        for (unsigned int i = 0; i < 3; i++) {
+            for (unsigned int j = 0; j < 3; j++) {
+                auto left_up = control_points_[i][j];
+                auto right_up = control_points_[i][j+1];
+                auto right_low = control_points_[i+1][j+1];
+                auto left_low = control_points_[i+1][j];
+
+                auto a_v = left_up * (_v) + left_low * (1-_v);
+                auto b_v = right_up * _v + right_low * (1-_v);
+                new_control_points_[i][j] = a_v * (1-_u) + b_v * _u;
+            }
+        }
+
+        pmp::vec3 control_points_2[2][2];
+        for (unsigned int i = 0; i < 2; i++) {
+            for (unsigned int j = 0; j < 2; j++) {
+                auto left_up = new_control_points_[i][j];
+                auto right_up = new_control_points_[i][j+1];
+                auto right_low = new_control_points_[i+1][j+1];
+                auto left_low = new_control_points_[i+1][j];
+
+                auto a_v = left_up * (_v) + left_low * (1-_v);
+                auto b_v = right_up * _v + right_low * (1-_v);
+                control_points_2[i][j] = a_v * (1-_u) + b_v * _u;
+            }
+        }
+
+        auto left_up = control_points_2[0][0];
+        auto right_up = control_points_2[0][1];
+        auto right_low = control_points_2[1][1];
+        auto left_low = control_points_2[1][0];
+
+        auto a_v = left_up * (_v) + left_low * (1-_v);
+        auto b_v = right_up * _v + right_low * (1-_v);
+        // get last point
+        p = a_v * (1-_u) + b_v * _u;
+        
+        vec3 up = right_up - left_up;
+        vec3 low = right_low - left_low;
+        vec3 dv = up * (1 - _v) + low * _v;
+
+        vec3 left = left_low - left_up;
+        vec3 right = right_low - right_up;
+        du = left * (1- _u) + right * _u;
+
+        n = cross(du, dv);
+        /*
+        std::cout<<"a_v: "<<a_v * (1-_u)<<"\n";
+        std::cout<<"b_v: "<<b_v * (_u)<<"\n";
+        std::cout<<"p: "<<_p<<"\n";
+        std::cout<<"n: "<<_n<<"\n";
+        std::cout<<"------------------------------\n";*/
+
+    }
+    else {
+        // analytic definition of Bernstein Patch (cubic Bernstein Polynomials)
+    }
 
     // copy resulting position and normal to output variables
     _p = p;
     _n = n;
-}
 
+
+}
 //-----------------------------------------------------------------------------
 
 void Bezier_patch::tessellate(unsigned int _resolution)

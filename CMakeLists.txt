@@ -19,7 +19,6 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 # dependencies
 find_package(OpenGL REQUIRED)
-find_package(OpenMP)
 
 
 ##############################################################################
@@ -49,11 +48,6 @@ endif()
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
-endif()
-
-if(OPENMP_FOUND)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS_INIT} -fopenmp)
 endif()
 
 
