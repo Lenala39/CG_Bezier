@@ -225,12 +225,15 @@ void Bezier_patch::tessellate(unsigned int _resolution)
      *   parameter values (`u`, `v`) within the unit square [0,1]x[0,1].
      *   So for example `N == 2` would sample `u` and `v` at 0.0 and 1.0
      *   and `N == 3` at 0.0, 0.5 and 1.0 and so on.
-     *   For every parameter (`u`,`v`) compute the position and normal
+     *   
+     *   1. For every parameter (`u`,`v`) compute the position and normal
      *   of the Bezier patch using the function `position_normal(u,v,p,n)`.
-     *   Store the resulting `N`x`N` grids of points and normals in a
+     *   
+     *   2. Store the resulting `N`x`N` grids of points and normals in a
      *   linearized manner in the arrays `surface_vertices_[]` and
      *   `surface_normals_[]`, which in the end should have `N`*`N` elements.
-     *   - Connect these surface samples by triangles. Each quad in your
+     *   
+     *   3. Connect these surface samples by triangles. Each quad in your
      *   regular grid can simply be split into
      *   two triangles. Hence, since we have `(N-1)*(N-1)` quads, which we
      *   split into `2*(N-1)*(N-1)` triangles, and every triangle needs
@@ -248,22 +251,44 @@ void Bezier_patch::tessellate(unsigned int _resolution)
      *   to OpenGL in `upload_opengl_buffers()` at the end of this function.
      */
 
-
-    // DELETE ME BEGIN
-
     // This code is just to see something after finishing the first task
     // it samples the bezier patch at 4 uv-positions (0,25,0.25),(0.25,0.75),(0.75,0.25) and (0.75,0.75)
-    for (unsigned int i = 0; i < 2; ++i) {
-        for (unsigned int j = 0; j < 2; ++j) {
-            float u = i == 0 ? 0.25 : 0.75;
-            float v = j == 0 ? 0.25 : 0.75;
+    for (unsigned int i = 0; i < N; i++) {
+        for (unsigned int j = 0; j < N; j++) {
+            float u = float(i) / (float(N) - 1);
+            float v = float(j) / (float(N) - 1); 
+            //std::cout<<"-------------------------------------\n";
+
             vec3 p, n;
             position_normal(u, v, p, n);
             surface_vertices_.push_back(p);
             surface_normals_.push_back(n);
         }
     }
-    // DELETE ME END
+
+    for (unsigned int k = 0; k < N-1; k++ ) {
+        for (unsigned int l = 0; l < N-1; l++) {
+            auto left_up = (k * N) + l;
+            auto right_up = (k * N) + (l + 1);
+            auto left_low = ((k + 1) * N) + l;
+            auto right_low = ((k + 1) * N) + (l + 1);
+
+            // push upper half triangle
+            surface_triangles_.push_back(left_up);
+            surface_triangles_.push_back(right_up);
+            surface_triangles_.push_back(right_low);
+
+            // push lower half triangle
+            surface_triangles_.push_back(left_up);
+            surface_triangles_.push_back(left_low);
+            surface_triangles_.push_back(right_low);
+
+
+
+
+        }
+        
+    }
 
 
     // test the results to avoid ulgy memory leaks
