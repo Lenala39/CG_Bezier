@@ -416,6 +416,14 @@ void Mesh::subdivide()
       *         for(auto hv : halfedges(v)) -->  loop through all outgoing halfedges of `Vertex v`
       */
 
+    //calculate new face vertices 
+    for (auto f: faces()) {
+        vec3 new_face_vertice;
+        for(auto vf : vertices(f)){
+            auto new_face = 
+        }
+    }
+    
 
 
     // assign new positions to old vertices

@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../libpmp_gl.a  CMakeFiles/pmp_gl.dir/Shader.cpp.o CMakeFiles/pmp_gl.dir/TrackballViewer.cpp.o CMakeFiles/pmp_gl.dir/Window.cpp.o
-/usr/bin/ranlib ../../../libpmp_gl.a
